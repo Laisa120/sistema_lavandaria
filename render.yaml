@@ -1,8 +1,9 @@
 services:
+  # BACKEND (Laravel)
   - type: web
-    name: lavasys-frontend
-    env: static
-    rootDir: frontend
+    name: lavasys-backend
+    env: docker
+    rootDir: backend
     dockerfilePath: ./Dockerfile.render
     plan: starter
     autoDeploy: true
@@ -16,10 +17,6 @@ services:
         sync: false
       - key: APP_KEY
         generateValue: true
-      - key: LOG_CHANNEL
-        value: stack
-      - key: LOG_LEVEL
-        value: info
       - key: DB_CONNECTION
         value: mysql
       - key: DB_HOST
@@ -51,10 +48,11 @@ services:
       - key: FRONTEND_URL
         sync: false
 
-  - type: web
-    name: lavasys-frontend
-    env: static
-    rootDir: frontend
+  # WORKER (queue)
+  - type: worker
+    name: lavasys-queue
+    env: docker
+    rootDir: backend
     dockerfilePath: ./Dockerfile.render
     plan: starter
     autoDeploy: true
@@ -88,26 +86,29 @@ services:
         value: phpredis
       - key: REDIS_HOST
         fromService:
-          type: web
-          name: lavasys-frontend
+          type: redis
+          name: lavasys-redis
           property: host
       - key: REDIS_PORT
         fromService:
-          type: web
-          name: lavasys-frontend
+          type: redis
+          name: lavasys-redis
           property: port
 
-  - type: web
-    name: lavasys-frontend
+  # REDIS
+  - type: redis
+    name: lavasys-redis
     plan: starter
     maxmemoryPolicy: allkeys-lru
 
+  # FRONTEND (React/Vite)
   - type: web
     name: lavasys-frontend
+    env: static
     rootDir: frontend
     buildCommand: npm ci && npm run build
-    staticPublishPath: ./dist
-    pullRequestPreviewsEnabled: false
+    staticPublishPath: dist
+    autoDeploy: true
     envVars:
       - key: VITE_API_BASE_URL
         sync: false
