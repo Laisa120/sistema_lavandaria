@@ -48,7 +48,7 @@ services:
       - key: FRONTEND_URL
         sync: false
 
-  # WORKER (queue)
+  # WORKER (SEM startCommand ❗)
   - type: worker
     name: lavasys-queue
     env: docker
@@ -56,7 +56,6 @@ services:
     dockerfilePath: ./Dockerfile.render
     plan: starter
     autoDeploy: true
-    startCommand: php artisan queue:work --sleep=1 --tries=3 --timeout=120
     envVars:
       - key: APP_ENV
         value: production
@@ -95,13 +94,14 @@ services:
           name: lavasys-redis
           property: port
 
-  # REDIS
+  # REDIS (corrigido)
   - type: redis
     name: lavasys-redis
     plan: starter
+    ipAllowList: []   # 🔥 permite acesso interno
     maxmemoryPolicy: allkeys-lru
 
-  # FRONTEND (React/Vite)
+  # FRONTEND
   - type: web
     name: lavasys-frontend
     env: static
