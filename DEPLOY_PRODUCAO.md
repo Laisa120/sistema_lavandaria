@@ -103,3 +103,42 @@ Se optar por Vercel, crie dois projetos apontando para `frontend/`:
 - [ ] Logs/alertas configurados
 - [ ] `app.genomni.com` sem exposição de admin no menu
 - [ ] `admin.genomni.com` acessível apenas por URL direta
+
+## 5) Diagnóstico rápido (quando cliente não consegue criar empresa, especialmente no telemóvel)
+
+Sintoma comum:
+- No frontend, erro de rede ao cadastrar empresa.
+- Em telemóvel, formulário abre mas não conclui o cadastro.
+
+Causas mais comuns em SaaS:
+- `VITE_API_BASE_URL` incorreto no frontend (`app`/`admin`).
+- CORS da API sem incluir `app.genomni.com`.
+- API com `APP_URL` diferente do domínio real.
+
+### Validação automática (recomendado)
+Execute:
+```bash
+./deploy/diagnostico_saas.sh
+```
+
+Com URL customizada:
+```bash
+./deploy/diagnostico_saas.sh https://api.genomni.com https://app.genomni.com https://admin.genomni.com
+```
+
+Esse script valida:
+- `GET /up` (API online)
+- `GET /api/bootstrap`
+- CORS preflight para `app` e `admin`
+- acessibilidade da rota `POST /api/settings/register`
+
+### Checklist de correção no Render/Vercel
+1. Backend (`lavasys-backend`)
+   - `APP_URL=https://api.genomni.com`
+   - `FRONTEND_URLS=https://app.genomni.com,https://admin.genomni.com`
+2. Frontend `genomni-app`
+   - `VITE_API_BASE_URL=https://api.genomni.com/api`
+3. Frontend `genomni-admin`
+   - `VITE_API_BASE_URL=https://api.genomni.com/api`
+4. Redeploy dos 3 serviços (`backend`, `genomni-app`, `genomni-admin`)
+5. Testar novamente no telefone em `https://app.genomni.com`

@@ -1,4 +1,17 @@
-const API_BASE = (import.meta.env.VITE_API_BASE_URL ?? '/api').replace(/\/$/, '');
+function resolveApiBase(): string {
+  const configured = (import.meta.env.VITE_API_BASE_URL ?? '').trim();
+  if (configured) return configured.replace(/\/$/, '');
+
+  if (typeof window === 'undefined') return '/api';
+
+  const host = window.location.hostname.toLowerCase();
+  if (host === 'localhost' || host === '127.0.0.1') return '/api';
+  if (host.endsWith('genomni.com')) return 'https://api.genomni.com/api';
+
+  return '/api';
+}
+
+const API_BASE = resolveApiBase();
 const LOCAL_API_FALLBACK = 'http://127.0.0.1:8000/api';
 const LOCAL_API_FALLBACK_ALT = 'http://localhost:8000/api';
 
@@ -24,6 +37,7 @@ async function doApiRequest<T>(base: string, path: string, init?: RequestInit): 
     },
   });
 
+  const contentType = response.headers.get('content-type') ?? '';
   const text = await response.text();
   let data: unknown = null;
   if (text) {
@@ -40,6 +54,10 @@ async function doApiRequest<T>(base: string, path: string, init?: RequestInit): 
         ? (data as { message: string }).message
         : `Erro na API (${response.status})`;
     throw new ApiRequestError(message, response.status);
+  }
+
+  if (contentType.includes('text/html')) {
+    throw new ApiRequestError('Resposta inválida da API.', 502);
   }
 
   return data as T;
