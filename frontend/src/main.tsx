@@ -1,10 +1,9 @@
-import { lazy, Suspense } from 'react';
+import React from 'react';
 import {createRoot} from 'react-dom/client';
 import './index.css';
 import { applyThemeMode, readThemeMode } from './lib/theme';
-
-const App = lazy(() => import('./App.tsx'));
-const AdminApp = lazy(() => import('./admin/AdminApp.tsx').then((m) => ({ default: m.AdminApp })));
+import App from './App';
+import { AdminApp } from './admin/AdminApp';
 
 applyThemeMode(readThemeMode());
 
@@ -31,7 +30,7 @@ if (!isLocalhost && isAppHost && pathname.startsWith('/admin')) {
 }
 
 createRoot(document.getElementById('root')!).render(
-  <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-slate-500">Carregando aplicação...</div>}>
+  <React.Fragment>
     {isAdminContext ? <AdminApp /> : <App />}
-  </Suspense>,
+  </React.Fragment>,
 );

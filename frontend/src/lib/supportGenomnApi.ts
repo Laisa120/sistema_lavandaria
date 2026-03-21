@@ -6,6 +6,7 @@ function resolveApiBase(): string {
 
   const host = window.location.hostname.toLowerCase();
   if (host === 'localhost' || host === '127.0.0.1') return '/api';
+  if (host.endsWith('vercel.app')) return 'https://api.genomni.com/api';
   if (host.endsWith('genomni.com')) return 'https://api.genomni.com/api';
 
   return '/api';

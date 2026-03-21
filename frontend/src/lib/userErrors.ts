@@ -9,6 +9,10 @@ export function toUserErrorMessage(error: unknown, fallback: string): string {
 
     if (!message) return fallback;
 
+    if (lower.includes('router_external_target_handshake_error')) {
+      return 'Não foi possível comunicar com o servidor neste momento. Tente novamente em instantes.';
+    }
+
     if (lower.includes('failed to fetch') || lower.includes('networkerror') || lower.includes('network error')) {
       return 'Não foi possível comunicar com o servidor. Verifique a ligação e tente novamente.';
     }
@@ -42,4 +46,3 @@ export function toUserErrorMessage(error: unknown, fallback: string): string {
 
   return fallback;
 }
-

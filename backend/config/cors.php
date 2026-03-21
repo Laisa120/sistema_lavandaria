@@ -28,6 +28,7 @@ return [
 
     'allowed_origins_patterns' => [
         '^https:\/\/([a-z0-9-]+\.)?genomni\.com$',
+        '^https:\/\/([a-z0-9-]+\.)?vercel\.app$',
     ],
 
     'allowed_headers' => ['*'],
